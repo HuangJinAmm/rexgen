@@ -10,7 +10,7 @@ This is a simple string generation library for Rust code. It only supports some 
 //max_repeate(10) means the max repeat times of the string where generate from regex is 10
 //max_repeate is a optional parameter, if not set, it will be set to 20
 for _ in 0..15 {
-        let gen = RegexGenerate::max_repeate(10).parse(r"\d{3}-\d{8}|\d{4}-\d{7}",20);
+        let gen = RegexGenerate::max_repeate(10).parse(r"\d{3}-\d{8}|\d{4}-\d{7}",20).unwrap();
         println!("{}", gen.generate());
 }
 /** 

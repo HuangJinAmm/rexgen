@@ -1,9 +1,8 @@
-use std::fmt::Debug;
+use std::{fmt::Debug};
 
 use rand::Rng;
 use regex_syntax::ast::{
-    parse::Parser, Alternation, Ast, ClassBracketed, ClassPerl, ClassSetUnion, Concat,
-    Repetition, RepetitionKind,
+    parse::Parser, Alternation, Ast, ClassBracketed, ClassPerl, ClassSetUnion, Concat, Error, Repetition, RepetitionKind
 };
 
 const WORD: &str = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -275,15 +274,22 @@ impl From<&ClassPerl> for RegexGenItem {
     }
 }
 
-pub fn regex_generator(regex: &str,max_repeate:usize) -> Box<dyn RegexGenerator> {
+pub fn regex_generator(regex: &str,max_repeate:usize) -> Result<Box<dyn RegexGenerator>,Error> {
     let mut parser = Parser::new();
-    let hir = parser.parse(regex).unwrap();
-    from_ast(&hir,max_repeate)
+    let hir = parser.parse(regex)?;
+    Ok(from_ast(&hir,max_repeate))
 }
 
 
 pub fn regex_gen(regex: &str,max_repeate:usize) -> String {
-    regex_generator(regex,max_repeate).generate(max_repeate)
+    match regex_generator(regex,max_repeate) {
+        Ok(r) => {
+            r.generate(max_repeate)
+        },
+        Err(e) => {
+            e.to_string()
+        },
+    }
 }
 
 pub struct RegexGenerate {
@@ -300,9 +306,9 @@ impl RegexGenerate {
         }
     }
 
-    pub fn parse(self,regex: &str) -> Self {
-        let regen = regex_generator(regex, self.repeat_max.unwrap_or(REPEATE_MAX));
-        Self { repeat_max: self.repeat_max, regex_generator: Some(regen) }
+    pub fn parse(self,regex: &str) -> Result<Self,Error> {
+        let regen = regex_generator(regex, self.repeat_max.unwrap_or(REPEATE_MAX))?;
+        Ok(Self { repeat_max: self.repeat_max, regex_generator: Some(regen) })
     }
 
     pub fn generate(&self) -> String {
@@ -475,7 +481,7 @@ mod tests {
     #[test]
     fn test_use() {
         for _ in 0..5 {
-            let s = RegexGenerate::max_repeate(10).parse("优秀|良好|及格|不及格").generate();
+            let s = RegexGenerate::max_repeate(10).parse("优秀|良好|及格|不及格").unwrap().generate();
             println!("{}",s);
         }
     }
