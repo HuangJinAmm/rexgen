@@ -443,7 +443,7 @@ mod tests {
 
     #[test]
     fn regex_gen_simple_1() {
-        let a = regex_gen("a啊@(abc|efd|xyz)\\.com",20);
+        let a = regex_gen("\\w+@(abc|efd|xyz)\\.com",20);
         println!("{}", a)
     }
 
