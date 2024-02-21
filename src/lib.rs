@@ -281,12 +281,13 @@ pub fn regex_generator(regex: &str,max_repeate:usize) -> Box<dyn RegexGenerator>
     from_ast(&hir,max_repeate)
 }
 
+
 pub fn regex_gen(regex: &str,max_repeate:usize) -> String {
     regex_generator(regex,max_repeate).generate(max_repeate)
 }
 
 pub struct RegexGenerate {
-    repeat_max:usize,
+    repeat_max:Option<usize>,
     regex_generator:Option<Box<dyn RegexGenerator>>
 }
 
@@ -294,18 +295,18 @@ impl RegexGenerate {
 
     pub fn max_repeate(max:usize) -> Self {
         Self {
-            repeat_max:max,
+            repeat_max:Some(max),
             regex_generator:None
         }
     }
 
     pub fn parse(self,regex: &str) -> Self {
-        let regen = regex_generator(regex, self.repeat_max);
+        let regen = regex_generator(regex, self.repeat_max.unwrap_or(REPEATE_MAX));
         Self { repeat_max: self.repeat_max, regex_generator: Some(regen) }
     }
 
     pub fn generate(&self) -> String {
-        self.regex_generator.as_ref().map(|f|f.generate(self.repeat_max)).unwrap_or_default()
+        self.regex_generator.as_ref().map(|f|f.generate(self.repeat_max.unwrap_or(REPEATE_MAX))).unwrap_or_default()
     }
 
 }
@@ -324,8 +325,8 @@ fn deal_classunion(cu: &ClassSetUnion) -> Box<dyn RegexGenerator> {
                 let edc = r.end.c;
                 altg.inner.push(Box::new(RegexGenItem::range(stc, edc)))
             }
-            regex_syntax::ast::ClassSetItem::Ascii(_) => todo!(),
-            regex_syntax::ast::ClassSetItem::Unicode(_) => todo!(),
+            regex_syntax::ast::ClassSetItem::Ascii(_) => todo!("not support yet"),
+            regex_syntax::ast::ClassSetItem::Unicode(_) => todo!("not support yet"),
             regex_syntax::ast::ClassSetItem::Perl(p) => {
                 let rgi: RegexGenItem = p.into();
                 altg.inner.push(Box::new(rgi));
