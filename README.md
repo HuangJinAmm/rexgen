@@ -2,7 +2,7 @@
 
 This is a simple string generation library for Rust code. It only supports some simple regular expressions
 
-## example
+## Example
 
 ```rust
 //for reuse example
